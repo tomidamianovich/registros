@@ -11,31 +11,40 @@
 
     // dirección donde guarda los archivos csv
     $dir_subida = 'C:/xampp/htdocs/registros/files/';
+    $flagarchivocomprimido="no";
+
+    foreach(glob($dir_subida.'{*.zip,*.tar}',GLOB_BRACE) as $archivo){
+        
+        $flagarchivocomprimido="si";
+        //Creamos un objeto de la clase ZipArchive()
+        $enzipado = new ZipArchive();
+    
+        //Abrimos el archivo a descomprimir
+        $enzipado->open($archivo);
+        
+        //Extraemos el contenido del archivo dentro de la carpeta especificada
+        $extraido = $enzipado->extractTo("./files/");
+        
+        /* Si el archivo se extrajo correctamente listamos los nombres de los
+        * archivos que contenia de lo contrario mostramos un mensaje de error
+        */
+        if($extraido == TRUE){
+            for ($x = 0; $x < $enzipado->numFiles; $x++) {
+                $archivo = $enzipado->statIndex($x);            
+            }
+        }
+        else {
+            echo "<script type=\"text/javascript\">alert(\"Ocurrió un error y el archivo no se pudó descomprimir.\");</script>";	    
+        }
+        $enzipado->close();
+    
+
+    
 
     //Se obtiene la cantidad de archivos a cargar
     $total_csv = count(glob($dir_subida.'/{*.txt,*.csv}',GLOB_BRACE));
 
-    //Creamos un objeto de la clase ZipArchive()
-    $enzipado = new ZipArchive();
- 
-    //Abrimos el archivo a descomprimir
-    $enzipado->open('./files/files.zip');
     
-    //Extraemos el contenido del archivo dentro de la carpeta especificada
-    $extraido = $enzipado->extractTo("./files/");
-    
-    /* Si el archivo se extrajo correctamente listamos los nombres de los
-    * archivos que contenia de lo contrario mostramos un mensaje de error
-    */
-    if($extraido == TRUE){
-        for ($x = 0; $x < $enzipado->numFiles; $x++) {
-            $archivo = $enzipado->statIndex($x);            
-        }
-    }
-    else {
-        echo 'Ocurrió un error y el archivo no se pudó descomprimir';
-    }
-
     
     //Se verifica que existan archivos en la carpeta especificada para ser cargados
     if ($total_csv > 0) {
@@ -59,6 +68,8 @@
                 $id = null;
             }
             
+            
+
             //Repite las siguientes funciones para todos los .csv y .txt contenidos en $dir_subida
             foreach(glob($dir_subida.'{*.txt,*.csv}',GLOB_BRACE) as $archivo){
                 
@@ -66,6 +77,11 @@
                 $arraydirarchivo = explode("/",$archivo);
                 //obtengo el final de la url que tiene informacion del archivo con el que trabajare        
                 $lastdirarchivo= $arraydirarchivo[count($arraydirarchivo)-1];
+                    
+                $arraylastdirarchivo = explode(".",$lastdirarchivo);
+                $rutaimagen = $arraylastdirarchivo[0];        
+                    
+                $arrayprotocolo= explode("-",$lastdirarchivo);$lastdirarchivo= $arraydirarchivo[count($arraydirarchivo)-1];
                     
                 $arraylastdirarchivo = explode(".",$lastdirarchivo);
                 $rutaimagen = $arraylastdirarchivo[0];        
@@ -87,14 +103,14 @@
                     echo "<h1 style='border: 10px solid white; padding: 13px;margin-left: 9%; border-radius: 22px;font-family:  Roboto, Helvetica, Arial, sans-serif;
                     margin-right:  11%; color:  white; text-align:center;'>Registros de Infracciones (".$total_csv." Archivo/s)</h1>";               
                     
-                    echo "<h2 id='registros' style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'>a</h2>";
-                    echo "<h2 id='subidas' style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'>a</h2>";
+                    echo "<p id='registros' style='color: white;margin-bottom: -7px;padding-left: 12%;font-size: 1.8em;font-weight: 500;text-decoration: underline;font-family: Roboto, Helvetica, Arial, sans-serif;'></p>";
                     
-                    echo "<h2 style='padding-left: 12%;font-weight: 100;font-family:  Roboto, Helvetica, Arial, sans-serif;color:  white;'>Dirección: ".$archivo."</h2>";              
-                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'>Peso del Archivo: ".$pesoarchivo." bytes";"</h2>";  
-                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'>Carpeta Imagenes: ".$rutaimagen." ";"</h2>";  
-                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'>Cantidad Imagenes: ".$cantimagenes." ";"</h2>";
-                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'>Cantidad de Archivos Descomprimidos: ".$enzipado->numFiles." ";"</h2>";
+                    echo "<h2 style='padding-left: 12%;font-weight: 100;font-family:  Roboto, Helvetica, Arial, sans-serif;color:  white;'>Datos de la Carga:</h2>";              
+                    echo "<h2 style='padding-left: 12%;font-weight: 100;font-family:  Roboto, Helvetica, Arial, sans-serif;color:  white;'> - Dirección: ".$archivo."</h2>";              
+                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Peso del Archivo: ".$pesoarchivo." bytes";"</h2>";  
+                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Carpeta Imagenes: ".$rutaimagen." ";"</h2>";  
+                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Cantidad Imagenes: ".$cantimagenes." ";"</h2>";
+                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Cantidad de Archivos Descomprimidos: ".$enzipado->numFiles." ";"</h2>";
                     
 
                     echo "<style type='text/css'> ";
@@ -112,7 +128,7 @@
                     echo "}";
                     echo "   </style> ";
                                         
-                    $flag=true;
+                    
                 
                     while($cantlineas>0){	
                             
@@ -267,9 +283,9 @@
                         '".$coordenadas."','".$Archivocoord."','".$carril."','".$tiempodesdeEncendido."','".$tiempoRojo."',
                         '".$tiempoAmarilla."','".$tiempoVerde."','".$Notificada."','".$Observaciones."','".$idMedioCaptura."','".$id."')";	
                         
-                        $flag=null;
+                        $flagregistros=null;
                         // si se hace el insert correctamente el flag queda con valor 'ok' sino con valor false
-                        if ($con->query($consulta) == TRUE) { $flag='ok'; } 
+                        if ($con->query($consulta) == TRUE) { $flagregistros='ok'; } 
                     
                 }            
                 fclose($filetoopen);
@@ -281,13 +297,6 @@
                 }
         }   
    
-    // Si la bandera esta ok se cargaron correctamente los registros en la bd
-    if ($flag === "ok"){                 
-        echo "<script type=\"text/javascript\">alert(\"Registros cargados correctamente.\");</script>";            
-    } else {
-        echo "<script type=\"text/javascript\">alert(\"Hubo un error al cargar los registros.\");</script>";            
-    }
-    
 
     //---------------------------------------------------------------------------------------------------------------------
     //--------------------------------------------- Subidas realizadas ----------------------------------------------------
@@ -297,28 +306,47 @@
     $consulta = "INSERT INTO `desanuevo`.`subidas`(`idsubidas`,`protocolo`,`rutaimagen`,`rutaimagenmin`,`tamimagen`, `fechasubida`) 
                  VALUES('".$id."','".$protocolo."','".$archivo."','".$rutaimagen."', '".$pesoarchivo."',CURDATE());";	
     
-    $flag=null;	
+    $flagsubidas=null;	
 
     // si se hace el insert correctamente el flag queda con valor 'ok' sino con valor false
-    if ($con->query($consulta) == TRUE) { $flag='ok'; } 
+    if ($con->query($consulta) == TRUE) { $flagsubidas='ok'; } 
 
-    if ($flag === "ok"){                 
-        echo "<script>$('#registros').append( 'Registros cargados Correctamente' );</script>";  
-        echo "<script>$('#subidas').html( 'Registros cargados Correctamente' );</script>";          
-    } else {
-        echo "<script>$('#registros').append( 'Error al cargar los registros' );</script>";   
-          
+    if ($flagsubidas === "ok" && $flagregistros === "ok"){         
+        echo "<script>$('#registros').append( 'Registros cargados Correctamente' );</script>";
+        
+        foreach(glob($dir_subida.'{*.zip,*.tar}',GLOB_BRACE) as $archivo){
+            $arraydirarchivo = explode("/",$archivo);
+            //obtengo el final de la url que tiene informacion del archivo con el que trabajare        
+            $lastdirarchivo= $arraydirarchivo[count($arraydirarchivo)-1];
+            rename($archivo, $dir_subida.'/subidas/'.$lastdirarchivo);  
+        }
+        
+        foreach(glob($dir_subida.'{*.txt,*.csv}',GLOB_BRACE) as $archivo){
+            unlink($archivo);
+            /*$arraydirarchivo = explode("/",$archivo);
+            //obtengo el final de la url que tiene informacion del archivo con el que trabajare        
+            $lastdirarchivo= $arraydirarchivo[count($arraydirarchivo)-1];
+            $nombrearchivoarray = explode(".",$lastdirarchivo);                             
+            rename($archivo, $dir_subida.'/subidas/'.$lastdirarchivo);     
+            rename($dir_subida.$nombrearchivoarray[0], $dir_subida.'subidas/'.$nombrearchivoarray[0]);           */
+        }
+
+    } else {  
+        echo "<script>$('#registros').append( 'Error al cargar los registros.' );</script>";
     }
 
     $con->close();  
     session_destroy(); 
     
-} else {
+    }
+}
+
+ if ($flagarchivocomprimido == "no"){
 
     echo "<h1 style='border: 10px solid white;margin-top:1.4%; padding: 13px;margin-left: 9%; border-radius: 22px;font-family:  Roboto, Helvetica, Arial, sans-serif;
-    margin-right:  9%; color:  white; text-align:center; '>Registros de Infracciones (".$total_csv." Archivo/s)</h1>";               
+    margin-right:  9%; color:  white; text-align:center; '>Registros de Infracciones</h1>";               
         
-    echo "<h2 style='color: white;padding-left:  11%;margin-top:  3%;font-family: Roboto, Helvetica, Arial, sans-serif;'>No hay ningun archivo en la carpeta de Registros: ".$dir_subida."</h2>";    
+    echo "<h2 style='color: white;padding-left:  11%;margin-top:  3%;font-family: Roboto, Helvetica, Arial, sans-serif;'>No hay ningun archivo a descomprimir en la carpeta de Registros: ".$dir_subida."</h2>";    
 
     echo "<style type='text/css'> ";
     echo "   html { ";
@@ -352,9 +380,10 @@
                 margin-left:  1.3%;
                 '>Volver al Menu Principal</button>";
         
-    echo "</div>";     
-}    
+    echo "</div>";      
 echo "</html>";
+}
+
 
 echo "<script type='text/javascript'>";
 echo "$(window).load(function() {";
