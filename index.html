@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <LINK REL=StyleSheet HREF="estilos.css" TYPE="text/css" MEDIA=screen>
+        <meta charset="UTF-8">
+        <title>Registros</title>
+    </head>
+    <body >
+          <div class="container">  
+               <form id="contact" action="usuario.php" method="post" enctype="multipart/form-data">
+                 <h3>Registros de Infracciones</h3>
+                 <h4>Ingrese los datos del registro:</h4>
+                 <fieldset>
+                   <input placeholder="Ingrese usuario:" name="user" type="text" tabindex="1" required autofocus>
+                 </fieldset>                
+                 <fieldset>
+                   <input placeholder="Ingrese Contraseña" name="password" type="password" tabindex="3" required
+                          style="
+                            width: 100%;
+                            border:  1px solid #ccc;
+                            margin: 0 0 5px;
+                            font-size:  12px;
+                            padding: 9px;">
+                 </fieldset>
+                               
+                 <fieldset>
+                   <button name="submit" type="submit" id="contact-submit" data-submit="...Enviando">Cargar Registros</button>
+                 </fieldset>                 
+               </form>
+          </div>        
+    </body>
+</html>
+
+
