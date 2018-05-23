@@ -36,6 +36,7 @@
         else {
             echo "<script type=\"text/javascript\">alert(\"Ocurrió un error y el archivo no se pudó descomprimir.\");</script>";	    
         }
+        $cantidaddescomprimidos=$enzipado->numFiles;
         $enzipado->close();
     
 
@@ -110,7 +111,7 @@
                     echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Peso del Archivo: ".$pesoarchivo." bytes";"</h2>";  
                     echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Carpeta Imagenes: ".$rutaimagen." ";"</h2>";  
                     echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Cantidad Imagenes: ".$cantimagenes." ";"</h2>";
-                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Cantidad de Archivos Descomprimidos: ".$enzipado->numFiles." ";"</h2>";
+                    echo "<h2 style='color: white;padding-left: 12%;font-weight: 100;font-family: Roboto, Helvetica, Arial, sans-serif;'> - Cantidad de Archivos Descomprimidos: ".$cantidaddescomprimidos." ";"</h2>";
                     
 
                     echo "<style type='text/css'> ";
@@ -323,6 +324,37 @@
         
         foreach(glob($dir_subida.'{*.txt,*.csv}',GLOB_BRACE) as $archivo){
             unlink($archivo);
+            $arraydirarchivo = explode("/",$archivo);
+            //obtengo el final de la url que tiene informacion del archivo con el que trabajare        
+            $lastdirarchivo= $arraydirarchivo[count($arraydirarchivo)-1];
+            
+
+            $arraydirarchivofinal = explode(".",$lastdirarchivo);
+            
+            $dirarchivofinal = $arraydirarchivofinal[0];
+            $dir = $dir_subida.$dirarchivofinal;
+
+            function emptyDir($dir) {
+                if (is_dir($dir)) {
+                    $scn = scandir($dir);
+                    foreach ($scn as $files) {
+                        if ($files !== '.') {
+                            if ($files !== '..') {
+                                if (!is_dir($dir . '/' . $files)) {
+                                    unlink($dir . '/' . $files);
+                                } else {
+                                    emptyDir($dir . '/' . $files);
+                                    rmdir($dir . '/' . $files);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            emptyDir($dir);
+            rmdir($dir);
+
             /*$arraydirarchivo = explode("/",$archivo);
             //obtengo el final de la url que tiene informacion del archivo con el que trabajare        
             $lastdirarchivo= $arraydirarchivo[count($arraydirarchivo)-1];
@@ -375,7 +407,9 @@
                 font-size:  18px;
                 background-color:  white;
                 padding: 12px;
+                font-family: Roboto, Helvetica, Arial, sans-serif;
                 margin-top: 1%;
+                font-weight:100;
                 text-align:  center;
                 margin-left:  1.3%;
                 '>Volver al Menu Principal</button>";
