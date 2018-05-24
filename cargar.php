@@ -17,7 +17,7 @@
         
         //Obtengo la extension del archivo para estudiar si es zip o tar
         $extension = pathinfo( $archivo,PATHINFO_EXTENSION );
-
+        
         $flagarchivocomprimido="si";
 
         if ($extension=="zip"){
@@ -31,33 +31,43 @@
             //Extraemos el contenido del archivo dentro de la carpeta especificada
             $extraido = $enzipado->extractTo("./files/");
 
-        }else if ($extension=="tar") {
+             /* Si el archivo se extrajo correctamente listamos los nombres de los
+             * archivos que contenia de lo contrario mostramos un mensaje de error
+             */
+
+            if($extraido == TRUE){
+                for ($x = 0; $x < $enzipado->numFiles; $x++) {
+                    $archivo = $enzipado->statIndex($x);            
+                }
+            }
+            else {
+                echo "<script type=\"text/javascript\">alert(\"Ocurrió un error y el archivo no se pudó descomprimir.\");</script>";	    
+            }
+            $cantidaddescomprimidos=$enzipado->numFiles;
             
+             $enzipado->close();   
+    
+
+        }else if ($extension=="tar") {
             //Creamos un objeto de la clase PharData()
-            $enzipado = new PharData();
-        
-            //Abrimos el archivo a descomprimir
-            $enzipado->open($archivo);
+            $enzipado = new PharData($archivo);
             
             //Extraemos el contenido del archivo dentro de la carpeta especificada
             $extraido = $enzipado->extractTo("./files/"); 
-        }        
-        
-        /* Si el archivo se extrajo correctamente listamos los nombres de los
-        * archivos que contenia de lo contrario mostramos un mensaje de error
-        */
 
-        if($extraido == TRUE){
-            for ($x = 0; $x < $enzipado->numFiles; $x++) {
-                $archivo = $enzipado->statIndex($x);            
+            /* Si el archivo se extrajo correctamente listamos los nombres de los
+             * archivos que contenia de lo contrario mostramos un mensaje de error
+             */
+            if($extraido == TRUE){
+                $cantidaddescomprimidos=count(glob($dir_subida.'{*.tar}',GLOB_BRACE));
             }
-        }
-        else {
-            echo "<script type=\"text/javascript\">alert(\"Ocurrió un error y el archivo no se pudó descomprimir.\");</script>";	    
-        }
-        $cantidaddescomprimidos=$enzipado->numFiles;
-        $enzipado->close();
-    
+            else {
+                echo "<script type=\"text/javascript\">alert(\"Ocurrió un error y el archivo no se pudó descomprimir.\");</script>";	    
+            }    
+            unset($enzipado);
+        }       
+        
+       
     //Se obtiene la cantidad de archivos a cargar
     $total_csv = count(glob($dir_subida.'/{*.txt,*.csv}',GLOB_BRACE));
 
@@ -331,7 +341,7 @@
             $arraydirarchivo = explode("/",$archivo);
             //obtengo el final de la url que tiene informacion del archivo con el que trabajare        
             $lastdirarchivo= $arraydirarchivo[count($arraydirarchivo)-1];
-            rename($archivo, $dir_subida.'/subidas/'.$lastdirarchivo);  
+            rename($archivo, $dir_subida.'subidas/'.$lastdirarchivo);  
         }
         
         foreach(glob($dir_subida.'{*.txt,*.csv}',GLOB_BRACE) as $archivo){
