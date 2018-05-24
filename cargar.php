@@ -15,19 +15,38 @@
 
     foreach(glob($dir_subida.'{*.zip,*.tar}',GLOB_BRACE) as $archivo){
         
+        //Obtengo la extension del archivo para estudiar si es zip o tar
+        $extension = pathinfo( $archivo,PATHINFO_EXTENSION );
+
         $flagarchivocomprimido="si";
-        //Creamos un objeto de la clase ZipArchive()
-        $enzipado = new ZipArchive();
-    
-        //Abrimos el archivo a descomprimir
-        $enzipado->open($archivo);
+
+        if ($extension=="zip"){
+
+            //Creamos un objeto de la clase ZipArchive()
+            $enzipado = new ZipArchive();
         
-        //Extraemos el contenido del archivo dentro de la carpeta especificada
-        $extraido = $enzipado->extractTo("./files/");
+            //Abrimos el archivo a descomprimir
+            $enzipado->open($archivo);
+            
+            //Extraemos el contenido del archivo dentro de la carpeta especificada
+            $extraido = $enzipado->extractTo("./files/");
+
+        }else if ($extension=="tar") {
+            
+            //Creamos un objeto de la clase PharData()
+            $enzipado = new PharData();
+        
+            //Abrimos el archivo a descomprimir
+            $enzipado->open($archivo);
+            
+            //Extraemos el contenido del archivo dentro de la carpeta especificada
+            $extraido = $enzipado->extractTo("./files/"); 
+        }        
         
         /* Si el archivo se extrajo correctamente listamos los nombres de los
         * archivos que contenia de lo contrario mostramos un mensaje de error
         */
+
         if($extraido == TRUE){
             for ($x = 0; $x < $enzipado->numFiles; $x++) {
                 $archivo = $enzipado->statIndex($x);            
@@ -39,14 +58,9 @@
         $cantidaddescomprimidos=$enzipado->numFiles;
         $enzipado->close();
     
-
-    
-
     //Se obtiene la cantidad de archivos a cargar
     $total_csv = count(glob($dir_subida.'/{*.txt,*.csv}',GLOB_BRACE));
 
-    
-    
     //Se verifica que existan archivos en la carpeta especificada para ser cargados
     if ($total_csv > 0) {
 
@@ -69,8 +83,6 @@
                 $id = null;
             }
             
-            
-
             //Repite las siguientes funciones para todos los .csv y .txt contenidos en $dir_subida
             foreach(glob($dir_subida.'{*.txt,*.csv}',GLOB_BRACE) as $archivo){
                 
@@ -132,7 +144,7 @@
                     
                 
                     while($cantlineas>0){	
-                            
+                        echo "<div id='hide'>";
                         $cantlineas=$cantlineas-1;   
                         echo "<div id='row' style='font-size: 17px;font-family: &quot;Roboto&quot Helvetica, Arial, sans-serif;
                         border: 2px solid #8BC34A;border-radius:  28px;margin-left: -3.5%;width: 91%;text-align: left;
@@ -265,7 +277,7 @@
                         echo "id Tipo de Medio de Captura: ".trim($datos[51]); echo "<br>";
                         echo "<br>";
                         echo "</div>";
-
+                        echo "</div>";
                         //inserto los valores en la tabla de registros
                         $consulta = "INSERT INTO `desanuevo`.`registros`(
                         `tipoRegistro`,`codProveedor`,`nroSerie`,`nroOperativo`,`lugar`,`fechaFactura`,`velPermitida`,
